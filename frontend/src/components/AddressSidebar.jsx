@@ -1,9 +1,14 @@
 import { useState } from 'react'
 
-function AddressSidebar({ addresses, onToggleVisibility, onDelete, onUpdateName, onAdd }) {
+function AddressSidebar({ addresses, onToggleVisibility, onDelete, onUpdateName, onAdd, onZoomTo }) {
   const [hoveredId, setHoveredId] = useState(null)
   const [editingId, setEditingId] = useState(null)
   const [editingName, setEditingName] = useState('')
+
+  // Sort addresses alphabetically by name
+  const sortedAddresses = [...addresses].sort((a, b) =>
+    a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+  )
 
   const startEditing = (id, currentName) => {
     setEditingId(id)
@@ -52,12 +57,18 @@ function AddressSidebar({ addresses, onToggleVisibility, onDelete, onUpdateName,
           </div>
         ) : (
           <ul className="divide-y divide-gray-100">
-            {addresses.map((address) => (
+            {sortedAddresses.map((address) => (
               <li
                 key={address.id}
-                className="p-4 hover:bg-gray-50 transition-colors"
+                className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                 onMouseEnter={() => setHoveredId(address.id)}
                 onMouseLeave={() => setHoveredId(null)}
+                onClick={(e) => {
+                  // Only zoom if not clicking on interactive elements
+                  if (!e.target.closest('input, button')) {
+                    onZoomTo(address.lat, address.lng)
+                  }
+                }}
               >
                 <div className="flex items-start gap-3">
                   {/* Checkbox */}

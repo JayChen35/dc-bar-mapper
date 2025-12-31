@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Toaster, toast } from 'react-hot-toast'
 import Map from './components/Map'
 import AddressSidebar from './components/AddressSidebar'
@@ -10,6 +10,7 @@ function App() {
   const [addresses, setAddresses] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
+  const zoomToRef = useRef(null)
 
   // Fetch addresses on mount
   useEffect(() => {
@@ -125,6 +126,12 @@ function App() {
     }
   }
 
+  const handleZoomTo = (lat, lng) => {
+    if (zoomToRef.current) {
+      zoomToRef.current(lat, lng)
+    }
+  }
+
   if (loading) {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-gray-50">
@@ -142,10 +149,14 @@ function App() {
         onToggleVisibility={handleToggleVisibility}
         onDelete={handleDelete}
         onUpdateName={handleUpdateName}
+        onZoomTo={handleZoomTo}
         onAdd={() => setShowAddModal(true)}
       />
 
-      <Map addresses={addresses.filter(addr => addr.visible)} />
+      <Map
+        addresses={addresses.filter(addr => addr.visible)}
+        onZoomToRef={zoomToRef}
+      />
 
       {showAddModal && (
         <AddressSearch
